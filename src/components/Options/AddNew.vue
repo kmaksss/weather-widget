@@ -22,12 +22,12 @@
 <script lang="ts">
 import { ref } from 'vue';
 import { getStorageItem, setStorageItem } from '../../utils';
-import { directGeocoding } from '../../api';
+import { directGeocoding, getCurrentWeather } from '../../api';
 import { IPlace } from '../../interfaces';
 
 export default {
     setup() {
-        const options: { value: string[] } = ref([]);
+        const options: { value: any[] } = ref([]);
 
         return {
             modelValue: ref(null),
@@ -49,11 +49,17 @@ export default {
         };
     },
     methods: {
-        add(modelValue) {
+        async add(modelValue) {
             const places: IPlace[] = getStorageItem('places') || [];
 
             if (!places.find((place) => place.name === modelValue)) {
-                const place = { id: '' + Date.now(), name: modelValue };
+                const { data } = await getCurrentWeather({ q: modelValue });
+                const place = {
+                    id: data.id,
+                    name: data.name,
+                    lat: data.coord.lat,
+                    lon: data.coord.lon,
+                };
                 places.unshift(place);
             }
             setStorageItem('places', places);

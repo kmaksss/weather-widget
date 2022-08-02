@@ -11,36 +11,55 @@
             title="settings"
             :class="{ show: showOptions }"
         />
+        <WeatherInfo :places="places" />
     </div>
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue'
-import { getCurrentWeather } from './api'
-import Options from './components/Options/Options.vue'
-import { IGetCurrentWeatherParams } from './interfaces'
+import { defineComponent } from 'vue';
+import { getCurrentWeather } from './api';
+import Options from './components/Options/Options.vue';
+import WeatherInfo from './components/WeatherInfo/WeatherInfo.vue';
+import { IGetCurrentWeatherParams, IGetCurrentWeather } from './interfaces';
+import { getStorageItem } from './utils';
+
+interface IData {
+    showOptions: boolean;
+    places: IGetCurrentWeather[];
+}
 
 export default defineComponent({
     name: 'App',
-    data: () => ({
+    data: (): IData => ({
         showOptions: false,
-        places: [{ lat: '31', lon: '33' }],
+        places: [],
     }),
-    components: { Options },
+    components: { Options, WeatherInfo },
     methods: {
-        getAllWeather(params: IGetCurrentWeatherParams[]): void {
-            params.forEach((item) => {
-                getCurrentWeather(item)
-            })
+        updatePlaces() {
+            const places = getStorageItem('places');
+            places && this.getAllWeather(places);
+        },
+        async getAllWeather(params: IGetCurrentWeatherParams[]) {
+            this.resetPlaces();
+
+            for (const item of params) {
+                const { data } = await getCurrentWeather(item);
+                this.places.push(data);
+            }
         },
         toggleSettingsPage(): void {
-            this.showOptions = !this.showOptions
+            this.showOptions = !this.showOptions;
+            !this.showOptions && this.updatePlaces();
+        },
+        resetPlaces() {
+            this.places = [];
         },
     },
     created() {
-        this.getAllWeather(this.places)
+        this.updatePlaces();
     },
-})
+});
 </script>
 
 <style lang="scss" scoped>

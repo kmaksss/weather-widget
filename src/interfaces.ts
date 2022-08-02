@@ -14,15 +14,66 @@ export interface IDirectGeoItem {
 }
 
 export interface IGetCurrentWeatherParams {
-    lat: string;
-    lon: string;
+    lat: number;
+    lon: number;
     mode?: string;
     appid?: string;
     units?: string;
     lang?: string;
 }
 
+export interface IGetCurrentWeatherParamsGeo {
+    q: string;
+    mode?: string;
+    appid?: string;
+}
+
+export interface IGetCurrentWeather {
+    coord: {
+        lon: number;
+        lat: number;
+    };
+    weather: {
+        description: string;
+        icon: string;
+        id: number;
+        main: string;
+    }[];
+    base: string;
+    main: {
+        temp: number;
+        feels_like: number;
+        temp_min: number;
+        temp_max: number;
+        pressure: number;
+        humiditnumber;
+        sea_level: number;
+        grnd_level: number;
+    };
+    visibility: number;
+    wind: {
+        speed: number;
+        deg: number;
+        gust: number;
+    };
+    clouds: {
+        all: number;
+    };
+    dt: number;
+    sys: {
+        country: string;
+        sunrise: number;
+        sunset: number;
+    };
+    timezone: number;
+    id: number;
+    name: string;
+    cod: number;
+}
+
 export interface IPlace {
     name: string;
-    id: string;
+    id: number;
+    lat: number;
+    lon: number;
 }
