@@ -1,7 +1,12 @@
 <template>
     <div class="options">
         <header class="text-bold">{{ title }}</header>
-        <Places v-if="places" :places="places" @onDeleteItem="getPlacesLocal" />
+        <Places
+            v-if="places.length"
+            :places="places"
+            @onUpdate="getPlacesLocal"
+        />
+        <p v-else>Empty list</p>
         <AddNew @onAddPlace="getPlacesLocal" />
     </div>
 </template>
