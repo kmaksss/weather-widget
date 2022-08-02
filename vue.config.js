@@ -3,6 +3,7 @@ const webpack = require('webpack')
 let assetsDir = 'assets'
 module.exports = {
     assetsDir: assetsDir,
+
     configureWebpack: {
         output: {
             filename: assetsDir + '/[name].js',
@@ -14,9 +15,11 @@ module.exports = {
             }),
         ],
     },
+
     devServer: {
         disableHostCheck: true,
     },
+
     chainWebpack: (config) => {
         config.optimization.delete('splitChunks')
 
@@ -31,4 +34,13 @@ module.exports = {
                 ])
         }
     },
+
+    pluginOptions: {
+        quasar: {
+            importStrategy: 'kebab',
+            rtlSupport: false,
+        },
+    },
+
+    transpileDependencies: ['quasar'],
 }
