@@ -8,10 +8,16 @@
         />
         <Options
             class="options-wrap"
-            title="settings"
+            title="Settings"
+            :isShow="showOptions"
+            @onUpdate="updatePlaces"
             :class="{ show: showOptions }"
         />
-        <WeatherInfo :places="places" />
+        <WeatherInfo
+            :places="places"
+            :isLoading="isLoading"
+            @onShowMenu="toggleSettingsPage"
+        />
     </div>
 </template>
 
@@ -20,54 +26,109 @@ import { defineComponent } from 'vue';
 import { getCurrentWeather } from './api';
 import Options from './components/Options/Options.vue';
 import WeatherInfo from './components/WeatherInfo/WeatherInfo.vue';
-import { IGetCurrentWeatherParams, IGetCurrentWeather } from './interfaces';
-import { getStorageItem } from './utils';
+import {
+    IGetCurrentWeatherParams,
+    IGetCurrentWeather,
+    IUserLocation,
+    IPlace,
+} from './interfaces';
+import { getStorageItem, setStorageItem } from './utils';
+import { getUserLocation } from './services/qeo.service';
 
 interface IData {
     showOptions: boolean;
     places: IGetCurrentWeather[];
+    isLoading: boolean;
 }
 
 export default defineComponent({
     name: 'App',
     data: (): IData => ({
+        isLoading: false,
         showOptions: false,
         places: [],
     }),
     components: { Options, WeatherInfo },
     methods: {
+        setLoading(val = false) {
+            this.isLoading = val;
+        },
         updatePlaces() {
             const places = getStorageItem('places');
             places && this.getAllWeather(places);
         },
         async getAllWeather(params: IGetCurrentWeatherParams[]) {
             this.resetPlaces();
-
+            this.setLoading(true);
             for (const item of params) {
                 const { data } = await getCurrentWeather(item);
                 this.places.push(data);
             }
+            this.setLoading(false);
         },
         toggleSettingsPage(): void {
             this.showOptions = !this.showOptions;
-            !this.showOptions && this.updatePlaces();
         },
         resetPlaces() {
             this.places = [];
         },
     },
-    created() {
+    async created() {
+        let userLocation: IUserLocation | null = null;
+        if (!getStorageItem('isSetLocation')) {
+            try {
+                userLocation = await getUserLocation();
+                setStorageItem('isSetLocation', true);
+            } catch (e) {
+                console.log(e);
+            }
+            if (userLocation) {
+                try {
+                    const { data } = await getCurrentWeather({
+                        lat: userLocation.lat,
+                        lon: userLocation.lon,
+                    });
+                    const places: IPlace[] = getStorageItem('places') || [];
+                    const place = {
+                        id: data.id,
+                        name: data.name,
+                        lat: data.coord.lat,
+                        lon: data.coord.lon,
+                    };
+                    places.unshift(place);
+                    setStorageItem('places', places);
+                } catch (e) {
+                    console.error(e);
+                }
+            }
+        }
         this.updatePlaces();
     },
 });
 </script>
 
+<style lang="scss">
+body,
+html {
+    height: 100%;
+}
+#app {
+    height: 100%;
+    overflow: auto;
+}
+</style>
+
 <style lang="scss" scoped>
+.weather-widget {
+    min-height: 100%;
+    padding: 2rem 1rem;
+}
 .settings {
     position: absolute;
     top: 0;
     right: 0;
     z-index: 101;
+    padding: 1rem;
 }
 
 .options-wrap {
@@ -76,12 +137,16 @@ export default defineComponent({
     right: 0;
     width: 0;
     height: 0;
-    overflow: hidden;
+    overflow: auto;
     z-index: 100;
-    transition: 0.3s ease-in-out;
+    transition: 0.1s ease-in-out;
     background: #ebebeb;
     border-radius: 50%;
     transform: translate(400px, -400px);
+    padding: 2rem 1rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
 
     &.show {
         width: 100%;

@@ -1,3 +1,8 @@
+export interface IUserLocation {
+    lat: number;
+    lon: number;
+}
+
 export interface ISortable {
     element: IPlace;
     oldIndex: number;
@@ -46,7 +51,7 @@ export interface IGetCurrentWeather {
         temp_min: number;
         temp_max: number;
         pressure: number;
-        humiditnumber;
+        humidity: number;
         sea_level: number;
         grnd_level: number;
     };

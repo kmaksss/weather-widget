@@ -1,5 +1,5 @@
 <template>
-    <q-item clickable v-ripple>
+    <q-item clickable v-ripple class="item">
         <q-item-section avatar>
             <q-icon name="menu" />
         </q-item-section>
@@ -44,3 +44,9 @@ export default defineComponent({
     },
 });
 </script>
+
+<style lang="scss" scoped>
+.item {
+    background: #fff;
+}
+</style>

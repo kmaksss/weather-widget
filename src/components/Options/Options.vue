@@ -1,13 +1,15 @@
 <template>
     <div class="options">
-        <header class="text-bold">{{ title }}</header>
-        <Places
-            v-if="places.length"
-            :places="places"
-            @onUpdate="getPlacesLocal"
-        />
-        <p v-else>Empty list</p>
-        <AddNew @onAddPlace="getPlacesLocal" />
+        <div class="top">
+            <header class="text-bold header">{{ title }}</header>
+            <Places
+                v-if="places.length"
+                :places="places"
+                @onUpdate="onUpdatePlaces"
+            />
+            <p v-else>Empty list</p>
+        </div>
+        <AddNew @onAddPlace="onUpdatePlaces" />
     </div>
 </template>
 
@@ -28,16 +30,29 @@ export default defineComponent({
         places: [],
     }),
     components: { Places, AddNew },
+    watch: {
+        isShow(show) {
+            show && this.getPlacesLocal();
+        },
+    },
     props: {
         title: String as PropType<string>,
+        isShow: Boolean as PropType<boolean>,
     },
     methods: {
         getPlacesLocal() {
             this.places = getStorageItem('places') || [];
         },
-    },
-    mounted() {
-        this.getPlacesLocal();
+        onUpdatePlaces() {
+            this.getPlacesLocal();
+            (this as any).$emit('onUpdate');
+        },
     },
 });
 </script>
+
+<style lang="scss" scoped>
+.header {
+    margin-bottom: 1rem;
+}
+</style>
