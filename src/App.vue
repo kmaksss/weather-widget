@@ -35,8 +35,6 @@ import {
 import { getStorageItem, setStorageItem } from './utils';
 import { getUserLocation } from './services/qeo.service';
 import { notify } from './utils';
-import 'quasar/dist/quasar.css';
-import '@quasar/extras/material-icons/material-icons.css';
 
 interface IData {
     showOptions: boolean;
@@ -86,9 +84,10 @@ export default defineComponent({
         if (!getStorageItem('isSetLocation')) {
             try {
                 userLocation = await getUserLocation();
-                setStorageItem('isSetLocation', true);
             } catch (e) {
                 notify({ message: e, type: 'warning' });
+            } finally {
+                setStorageItem('isSetLocation', true);
             }
             if (userLocation) {
                 try {

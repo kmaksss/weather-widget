@@ -9,12 +9,13 @@
             hide-dropdown-icon
             :options="options"
             @filter="filterFn"
+            @update:model-value="add"
         >
             <template v-slot:append>
                 <q-icon
                     class="cursor-pointer"
                     name="keyboard_return"
-                    @click.stop.prevent="modelValue && add(modelValue)"
+                    @click.stop.prevent="add"
                 />
             </template>
         </q-select>
@@ -29,8 +30,8 @@ import { IPlace } from '../../interfaces';
 import { notify } from '../../utils';
 
 export default {
-    setup(_, { emit }) {
-        const options: { value: any[] } = ref([]);
+    setup(_, { emit }): any {
+        const options: { value: unknown[] } = ref([]);
         const modelValue = ref(null);
         return {
             modelValue,
@@ -48,7 +49,6 @@ export default {
 
                     update(() => {
                         options.value = data.map((item) => item.name);
-                        console.log();
                     });
                 } catch (e) {
                     notify({
@@ -58,6 +58,12 @@ export default {
                 }
             },
             async add() {
+                if (!modelValue.value) {
+                    return notify({
+                        message: 'Choose a city from the list',
+                        type: 'warning',
+                    });
+                }
                 const places: IPlace[] = getStorageItem('places') || [];
 
                 if (!places.find((place) => place.name === modelValue.value)) {
@@ -73,12 +79,22 @@ export default {
                         };
                         places.unshift(place);
                         modelValue.value = null;
+
+                        notify({
+                            message: 'City ​​saved',
+                            type: 'success',
+                        });
                     } catch (e) {
                         notify({
                             message: e.response.data.message,
                             type: 'error',
                         });
                     }
+                } else {
+                    return notify({
+                        message: 'This city is already on your list',
+                        type: 'warning',
+                    });
                 }
                 setStorageItem('places', places);
                 emit('onAddPlace');
