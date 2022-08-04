@@ -1,6 +1,6 @@
-const webpack = require('webpack')
+const webpack = require('webpack');
 
-let assetsDir = 'assets'
+let assetsDir = 'assets';
 module.exports = {
     assetsDir: assetsDir,
 
@@ -21,17 +21,17 @@ module.exports = {
     },
 
     chainWebpack: (config) => {
-        config.optimization.delete('splitChunks')
+        config.optimization.delete('splitChunks');
 
         if (config.plugins.has('extract-css')) {
-            const extractCSSPlugin = config.plugin('extract-css')
+            const extractCSSPlugin = config.plugin('extract-css');
             extractCSSPlugin &&
                 extractCSSPlugin.tap(() => [
                     {
                         filename: assetsDir + '/[name].css',
                         chunkFilename: assetsDir + '/[name].css',
                     },
-                ])
+                ]);
         }
     },
 
@@ -43,4 +43,4 @@ module.exports = {
     },
 
     transpileDependencies: ['quasar'],
-}
+};

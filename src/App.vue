@@ -34,6 +34,9 @@ import {
 } from './interfaces';
 import { getStorageItem, setStorageItem } from './utils';
 import { getUserLocation } from './services/qeo.service';
+import { notify } from './utils';
+import 'quasar/dist/quasar.css';
+import '@quasar/extras/material-icons/material-icons.css';
 
 interface IData {
     showOptions: boolean;
@@ -60,11 +63,16 @@ export default defineComponent({
         async getAllWeather(params: IGetCurrentWeatherParams[]) {
             this.resetPlaces();
             this.setLoading(true);
-            for (const item of params) {
-                const { data } = await getCurrentWeather(item);
-                this.places.push(data);
+            try {
+                for (const item of params) {
+                    const { data } = await getCurrentWeather(item);
+                    this.places.push(data);
+                }
+            } catch (e) {
+                notify({ message: e.response.data.message, type: 'error' });
+            } finally {
+                this.setLoading(false);
             }
-            this.setLoading(false);
         },
         toggleSettingsPage(): void {
             this.showOptions = !this.showOptions;
@@ -80,7 +88,7 @@ export default defineComponent({
                 userLocation = await getUserLocation();
                 setStorageItem('isSetLocation', true);
             } catch (e) {
-                console.log(e);
+                notify({ message: e, type: 'warning' });
             }
             if (userLocation) {
                 try {
@@ -98,7 +106,7 @@ export default defineComponent({
                     places.unshift(place);
                     setStorageItem('places', places);
                 } catch (e) {
-                    console.error(e);
+                    notify({ message: e.response.data.message, type: 'error' });
                 }
             }
         }

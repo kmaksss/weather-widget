@@ -26,6 +26,7 @@ import { ref } from 'vue';
 import { getStorageItem, setStorageItem } from '../../utils';
 import { directGeocoding, getCurrentWeather } from '../../api';
 import { IPlace } from '../../interfaces';
+import { notify } from '../../utils';
 
 export default {
     setup(_, { emit }) {
@@ -42,12 +43,19 @@ export default {
                     return;
                 }
 
-                const { data } = await directGeocoding(val);
+                try {
+                    const { data } = await directGeocoding(val);
 
-                update(() => {
-                    options.value = data.map((item) => item.name);
-                    console.log();
-                });
+                    update(() => {
+                        options.value = data.map((item) => item.name);
+                        console.log();
+                    });
+                } catch (e) {
+                    notify({
+                        message: e.response.data.message,
+                        type: 'error',
+                    });
+                }
             },
             async add() {
                 const places: IPlace[] = getStorageItem('places') || [];
@@ -66,7 +74,10 @@ export default {
                         places.unshift(place);
                         modelValue.value = null;
                     } catch (e) {
-                        console.error(e);
+                        notify({
+                            message: e.response.data.message,
+                            type: 'error',
+                        });
                     }
                 }
                 setStorageItem('places', places);

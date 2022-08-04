@@ -16,7 +16,7 @@ function _getErrorMessage({ code }: { code: number }): string {
             errorMessage = 'Location information is not available.';
             break;
         default:
-            errorMessage = 'Произошла неизвестная ошибка';
+            errorMessage = 'An unknown error has occurred';
     }
     return errorMessage;
 }

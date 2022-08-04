@@ -1,6 +1,10 @@
 <template>
-    <div class="weather-item">
-        <q-card class="my-card">
+    <div class="weather-item text-body1">
+        <q-card
+            :class="`my-card ${
+                isDay ? 'sky-gradient-day' : 'sky-gradient-night'
+            }`"
+        >
             <q-card-section>
                 <div class="text-bold">
                     {{ place.name }}, {{ place.sys.country }}
@@ -56,6 +60,13 @@ export default defineComponent({
             default: () => ({}),
         },
     },
+    computed: {
+        isDay() {
+            const { sunrise, sunset } = this.place.sys;
+            const { dt } = this.place;
+            return !(dt < sunrise || dt > sunset);
+        },
+    },
     methods: {
         getImageUrl(name: string): string {
             return `https://openweathermap.org/img/wn/${name}@2x.png`;
@@ -65,6 +76,16 @@ export default defineComponent({
 </script>
 
 <style lang="scss" scoped>
+.my-card {
+    color: #fff;
+    min-height: 265px;
+}
+.sky-gradient-day {
+    background: linear-gradient(to bottom, #57c1eb 0%, #246fa8 100%);
+}
+.sky-gradient-night {
+    background: linear-gradient(to bottom, #020111 10%, #3a3a52 100%);
+}
 .weather-item {
     margin-bottom: 1rem;
     max-width: 320px;
@@ -78,10 +99,18 @@ export default defineComponent({
         gap: 20px;
     }
 
+    &__temp-info {
+        margin-bottom: 20px;
+    }
+
     &__temp {
         font-size: 2.5rem;
         text-align: center;
-        font-weight: 700;
+        font-weight: 500;
+    }
+
+    &__bottom {
+        font-weight: 500;
     }
 
     &__bottom-items {

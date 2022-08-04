@@ -12,7 +12,7 @@ export interface ISortable {
 export interface IDirectGeoItem {
     country: string;
     lat: number;
-    local_names: Object;
+    local_names: { en: string };
     lon: number;
     name: string;
     state: string;
